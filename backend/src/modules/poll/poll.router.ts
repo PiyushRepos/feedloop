@@ -17,6 +17,7 @@ import {
 } from './poll.schema.js';
 import { authenticate } from '../../core/middleware/authenticate.js';
 import { validate } from '../../core/middleware/validate.js';
+import responseRouter from '../response/response.router.js';
 
 const router: Router = Router();
 
@@ -76,5 +77,8 @@ router.delete(
   validate('params', pollIdSchema),
   deletePoll
 );
+
+// POST /api/polls/:slug/responses  — submit a response (nested resource)
+router.use('/:slug/responses', responseRouter);
 
 export default router;
