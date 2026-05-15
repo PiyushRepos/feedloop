@@ -28,6 +28,12 @@ enum PollStatus {
   PUBLISHED  // results visible publicly on the poll link
 }
 
+enum StatsVisibility {
+  VOTES_ONLY // default — option counts + percentages only
+  BASIC      // + device type (mobile/tablet/desktop) + country
+  FULL       // + browser, OS, region, city
+}
+
 // ─────────────────────────────────────────────
 // Auth
 // ─────────────────────────────────────────────
@@ -93,12 +99,13 @@ model Poll {
   title        String
   description  String?
   creatorId    String
-  isAnonymous   Boolean    @default(false) // controls storage — respondent identity not stored
-  requiresAuth  Boolean    @default(false) // controls access  — must be logged in to respond
-  status        PollStatus @default(DRAFT)
-  expiresAt     DateTime?              // null = never expires
-  maxResponses  Int?                   // null = unlimited; poll auto-closes when count reaches this
-  publishedAt   DateTime?              // set when creator publishes results
+  isAnonymous      Boolean         @default(false)    // controls storage — respondent identity not stored
+  requiresAuth     Boolean         @default(false)    // controls access  — must be logged in to respond
+  status           PollStatus      @default(DRAFT)
+  statsVisibility  StatsVisibility @default(VOTES_ONLY) // controls what geo/device data is public
+  expiresAt        DateTime?                          // null = never expires
+  maxResponses     Int?                               // null = unlimited; poll auto-closes when count reaches this
+  publishedAt      DateTime?                          // set when creator publishes results
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
 

@@ -6,9 +6,7 @@ const answerSchema = z.object({
 });
 
 export const submitResponseSchema = z.object({
-  answers: z
-    .array(answerSchema)
-    .min(1, 'At least one answer is required'),
+  answers: z.array(answerSchema).min(1, 'At least one answer is required'),
 });
 
 export const responseSlugSchema = z.object({

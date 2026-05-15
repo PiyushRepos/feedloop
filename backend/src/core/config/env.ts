@@ -5,6 +5,7 @@ import * as z from 'zod';
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'production']),
   PORT: z.string().transform((val) => parseInt(val, 10)),
+  CLIENT_URL: z.string().url().default('http://localhost:5173'),
 
   // Database
   DATABASE_URL: z.string().url(),

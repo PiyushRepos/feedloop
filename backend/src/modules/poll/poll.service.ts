@@ -34,6 +34,7 @@ const pollWithQuestionsSelect = {
   isAnonymous: true,
   requiresAuth: true,
   status: true,
+  statsVisibility: true,
   expiresAt: true,
   maxResponses: true,
   publishedAt: true,
@@ -65,6 +66,7 @@ const pollSummarySelect = {
   status: true,
   isAnonymous: true,
   requiresAuth: true,
+  statsVisibility: true,
   expiresAt: true,
   maxResponses: true,
   publishedAt: true,
@@ -116,6 +118,7 @@ async function createPoll(userId: string, input: CreatePollInput) {
       description: input.description ?? null,
       isAnonymous: input.isAnonymous ?? false,
       requiresAuth: input.requiresAuth ?? false,
+      statsVisibility: input.statsVisibility ?? 'VOTES_ONLY',
       expiresAt: input.expiresAt ? new Date(input.expiresAt) : null,
       maxResponses: input.maxResponses ?? null,
       creatorId: userId,
@@ -189,6 +192,8 @@ async function updatePoll(id: string, userId: string, input: UpdatePollInput) {
   if (input.description !== undefined) data.description = input.description;
   if (input.isAnonymous !== undefined) data.isAnonymous = input.isAnonymous;
   if (input.requiresAuth !== undefined) data.requiresAuth = input.requiresAuth;
+  if (input.statsVisibility !== undefined)
+    data.statsVisibility = input.statsVisibility;
   if (input.maxResponses !== undefined) data.maxResponses = input.maxResponses;
   if (input.expiresAt !== undefined) data.expiresAt = new Date(input.expiresAt);
 

@@ -51,6 +51,7 @@ async function fetchPollForResults(slug: string, userId?: string) {
       description: true,
       status: true,
       isAnonymous: true,
+      statsVisibility: true,
       publishedAt: true,
       createdAt: true,
       creatorId: true,
@@ -73,14 +74,13 @@ async function fetchPollForResults(slug: string, userId?: string) {
 
   const isOwner = userId === poll.creatorId;
 
-  if (poll.status === 'DRAFT' || poll.status === 'ACTIVE') {
-    // Only creator can preview results before closing/publishing
-    if (!isOwner) throw new NotFoundError('Poll not found');
+  // DRAFT and ACTIVE are invisible to non-owners (poll page not yet public)
+  if ((poll.status === 'DRAFT' || poll.status === 'ACTIVE') && !isOwner) {
+    throw new NotFoundError('Poll not found');
   }
 
-  if (poll.status === 'CLOSED' && !isOwner) {
-    throw new BadRequestError('Results have not been published yet');
-  }
+  // CLOSED: accessible to public but only shows a preview (no results)
+  // PUBLISHED: fully visible
 
   return { poll, isOwner };
 }
@@ -183,11 +183,49 @@ async function groupByColumn(
  * Accessible when poll is PUBLISHED (or by owner at CLOSED/PUBLISHED status)
  */
 async function getPollResults(slug: string, userId?: string) {
-  const { poll } = await fetchPollForResults(slug, userId);
+  const { poll, isOwner } = await fetchPollForResults(slug, userId);
 
-  const [totalResponses, optionCounts] = await Promise.all([
+  // CLOSED + non-owner: return a preview — question texts only, no results yet
+  if (poll.status === 'CLOSED' && !isOwner) {
+    const totalResponses = await prisma.response.count({ where: { pollId: poll.id } });
+    log.info({ pollId: poll.id, userId }, 'Closed poll preview fetched');
+    return {
+      poll: {
+        id: poll.id,
+        slug: poll.slug,
+        title: poll.title,
+        description: poll.description,
+        status: poll.status,
+        totalResponses,
+        // Question texts only — no options to prevent result inference
+        questions: poll.questions.map((q) => ({ id: q.id, text: q.text, order: q.order })),
+      },
+    };
+  }
+
+  const visibility = poll.statsVisibility;
+  const includeBasic = visibility === 'BASIC' || visibility === 'FULL';
+  const includeFull = visibility === 'FULL';
+
+  // Fetch only what the visibility tier allows — avoid unnecessary DB queries
+  const [
+    totalResponses,
+    optionCounts,
+    countries,
+    deviceTypes,
+    browsers,
+    os,
+    regions,
+    cities,
+  ] = await Promise.all([
     prisma.response.count({ where: { pollId: poll.id } }),
     buildOptionCountMap(poll.id),
+    includeBasic ? groupByColumn(poll.id, 'country') : Promise.resolve([]),
+    includeBasic ? groupByColumn(poll.id, 'device') : Promise.resolve([]),
+    includeFull ? groupByColumn(poll.id, 'browser') : Promise.resolve([]),
+    includeFull ? groupByColumn(poll.id, 'os') : Promise.resolve([]),
+    includeFull ? groupByColumn(poll.id, 'region') : Promise.resolve([]),
+    includeFull ? groupByColumn(poll.id, 'city') : Promise.resolve([]),
   ]);
 
   const questions = buildQuestionResults(
@@ -196,7 +234,7 @@ async function getPollResults(slug: string, userId?: string) {
     totalResponses
   );
 
-  log.info({ pollId: poll.id, userId }, 'Results fetched');
+  log.info({ pollId: poll.id, userId, visibility }, 'Results fetched');
 
   return {
     poll: {
@@ -206,11 +244,21 @@ async function getPollResults(slug: string, userId?: string) {
       description: poll.description,
       status: poll.status,
       isAnonymous: poll.isAnonymous,
+      statsVisibility: poll.statsVisibility,
       publishedAt: poll.publishedAt,
       createdAt: poll.createdAt,
     },
     totalResponses,
     questions,
+    // Only present when visibility tier includes them — empty arrays when excluded
+    ...(includeBasic && {
+      geo: { countries },
+      devices: { types: deviceTypes },
+    }),
+    ...(includeFull && {
+      geo: { countries, regions, cities },
+      devices: { types: deviceTypes, browsers, os },
+    }),
   };
 }
 
@@ -227,6 +275,7 @@ async function getPollAnalytics(id: string, userId: string) {
       description: true,
       status: true,
       isAnonymous: true,
+      statsVisibility: true,
       publishedAt: true,
       createdAt: true,
       creatorId: true,

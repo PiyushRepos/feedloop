@@ -19,11 +19,16 @@ const questionSchema = z.object({
 
 // ─── Poll schemas ─────────────────────────────────────────────────────────────
 
+const statsVisibilitySchema = z
+  .enum(['VOTES_ONLY', 'BASIC', 'FULL'])
+  .default('VOTES_ONLY');
+
 export const createPollSchema = z.object({
   title: z.string().min(1, 'Title is required').max(200),
   description: z.string().max(1000).optional(),
   isAnonymous: z.boolean().default(false),
   requiresAuth: z.boolean().default(false),
+  statsVisibility: statsVisibilitySchema,
   expiresAt: z.string().datetime({ message: 'Invalid expiry date' }).optional(),
   maxResponses: z
     .number()
@@ -41,6 +46,7 @@ export const updatePollSchema = z.object({
   description: z.string().max(1000).optional(),
   isAnonymous: z.boolean().optional(),
   requiresAuth: z.boolean().optional(),
+  statsVisibility: z.enum(['VOTES_ONLY', 'BASIC', 'FULL']).optional(),
   expiresAt: z.string().datetime().optional(),
   maxResponses: z.number().int().min(1).optional(),
 });
