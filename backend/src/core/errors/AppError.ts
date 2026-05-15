@@ -1,3 +1,5 @@
+import { HttpStatus } from '../constants/http.js';
+
 export class AppError extends Error {
   constructor(
     public readonly message: string,
@@ -12,30 +14,30 @@ export class AppError extends Error {
 
 export class BadRequestError extends AppError {
   constructor(message = 'Bad request') {
-    super(message, 400, 'BAD_REQUEST');
+    super(message, HttpStatus.BAD_REQUEST, 'BAD_REQUEST');
   }
 }
 
 export class UnauthorizedError extends AppError {
   constructor(message = 'Unauthorized') {
-    super(message, 401, 'UNAUTHORIZED');
+    super(message, HttpStatus.UNAUTHORIZED, 'UNAUTHORIZED');
   }
 }
 
 export class ForbiddenError extends AppError {
   constructor(message = 'Forbidden') {
-    super(message, 403, 'FORBIDDEN');
+    super(message, HttpStatus.FORBIDDEN, 'FORBIDDEN');
   }
 }
 
 export class NotFoundError extends AppError {
   constructor(message = 'Not found') {
-    super(message, 404, 'NOT_FOUND');
+    super(message, HttpStatus.NOT_FOUND, 'NOT_FOUND');
   }
 }
 
 export class ConflictError extends AppError {
   constructor(message = 'Conflict') {
-    super(message, 409, 'CONFLICT');
+    super(message, HttpStatus.CONFLICT, 'CONFLICT');
   }
 }
