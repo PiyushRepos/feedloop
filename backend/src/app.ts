@@ -3,6 +3,7 @@ import cors from 'cors';
 import { errorHandler } from './core/middleware/errorHandler.js';
 import { globalRateLimit } from './core/middleware/rateLimit.js';
 import authRouter from './modules/auth/auth.router.js';
+import pollRouter from './modules/poll/poll.router.js';
 import { sendSuccess } from './core/utils/apiResponse.js';
 
 function createApp(): Application {
@@ -19,6 +20,7 @@ function createApp(): Application {
   });
 
   app.use('/api/auth', authRouter);
+  app.use('/api/polls', pollRouter);
 
   // ─── Global error handler (must be last) ─────────────────────────────────
   app.use(errorHandler);
