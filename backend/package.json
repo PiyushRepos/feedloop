@@ -50,6 +50,7 @@
     "google-auth-library": "^10.6.2",
     "jose": "^6.2.3",
     "nanoid": "^5.1.11",
+    "node-cron": "^4.2.1",
     "pg": "^8.20.0",
     "pino": "^10.3.1",
     "socket.io": "^4.8.3",

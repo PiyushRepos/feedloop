@@ -4,6 +4,7 @@ import env from './core/config/env.js';
 import { createLogger } from './core/utils/logger.js';
 import { initIO } from './core/ws/io.js';
 import { registerPollHandlers } from './core/ws/pollHandler.js';
+import { startExpirePollsCron } from './core/cron/expirePolls.js';
 
 const log = createLogger('Server');
 
@@ -21,6 +22,9 @@ function main() {
         log.info({ socketId: socket.id }, 'Client disconnected');
       });
     });
+
+    // Start background cron jobs
+    startExpirePollsCron(io);
 
     server.listen(PORT, () => {
       log.info(`Listening on http://localhost:${PORT}`);
