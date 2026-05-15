@@ -1,6 +1,18 @@
 import { Router } from 'express';
-import { register, login, refresh, logout, googleLogin, me } from './auth.controller.js';
-import { registerSchema, loginSchema, refreshSchema, googleSchema } from './auth.schema.js';
+import {
+  register,
+  login,
+  refresh,
+  logout,
+  googleLogin,
+  me,
+} from './auth.controller.js';
+import {
+  registerSchema,
+  loginSchema,
+  refreshSchema,
+  googleSchema,
+} from './auth.schema.js';
 import { authenticate } from '../../core/middleware/authenticate.js';
 import { validate } from '../../core/middleware/validate.js';
 

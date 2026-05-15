@@ -6,7 +6,12 @@ import { HttpStatus } from '../constants/http.js';
 
 const log = createLogger('ErrorHandler');
 
-export function errorHandler(err: unknown, _req: Request, res: Response, _next: NextFunction): void {
+export function errorHandler(
+  err: unknown,
+  _req: Request,
+  res: Response,
+  _next: NextFunction
+): void {
   if (err instanceof AppError) {
     if (err.statusCode >= HttpStatus.INTERNAL_SERVER_ERROR) {
       log.error({ err }, err.message);
@@ -19,5 +24,10 @@ export function errorHandler(err: unknown, _req: Request, res: Response, _next: 
   }
 
   log.error({ err }, 'Unhandled error');
-  sendError(res, 'Something went wrong', 'INTERNAL_ERROR', HttpStatus.INTERNAL_SERVER_ERROR);
+  sendError(
+    res,
+    'Something went wrong',
+    'INTERNAL_ERROR',
+    HttpStatus.INTERNAL_SERVER_ERROR
+  );
 }
