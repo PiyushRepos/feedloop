@@ -18,6 +18,10 @@ import {
 import { authenticate } from '../../core/middleware/authenticate.js';
 import { validate } from '../../core/middleware/validate.js';
 import responseRouter from '../response/response.router.js';
+import {
+  getPollResults,
+  getPollAnalytics,
+} from '../analytics/analytics.controller.js';
 
 const router: Router = Router();
 
@@ -76,6 +80,27 @@ router.delete(
   authenticate,
   validate('params', pollIdSchema),
   deletePoll
+);
+
+// GET /api/polls/:slug/results  — public vote counts (PUBLISHED or owner preview)
+router.get(
+  '/:slug/results',
+  (req, res, next) => {
+    authenticate(req, res, (err) => {
+      if (err) return next();
+      next();
+    });
+  },
+  validate('params', pollSlugSchema),
+  getPollResults
+);
+
+// GET /api/polls/:id/analytics  — owner-only full breakdown
+router.get(
+  '/:id/analytics',
+  authenticate,
+  validate('params', pollIdSchema),
+  getPollAnalytics
 );
 
 // POST /api/polls/:slug/responses  — submit a response (nested resource)
