@@ -1,6 +1,9 @@
 import app from "./app.js";
 import { createServer } from "http";
 import env from "./core/config/env.js";
+import { createLogger } from "./core/utils/logger.js";
+
+const log = createLogger("Server");
 
 function main() {
   try {
@@ -8,26 +11,26 @@ function main() {
     const server = createServer(app());
 
     server.listen(PORT, () => {
-      console.log(`Server is running on port http://localhost:${PORT}`);
+      log.info(`Listening on http://localhost:${PORT}`);
     });
 
     process.on("SIGINT", () => {
-      console.log("Received SIGINT. Shutting down gracefully...");
+      log.info("Received SIGINT. Shutting down gracefully...");
       server.close(() => {
-        console.log("Server closed. Exiting process.");
+        log.info("Server closed. Exiting process.");
         process.exit(0);
       });
     });
 
     process.on("SIGTERM", () => {
-      console.log("Received SIGTERM. Shutting down gracefully...");
+      log.info("Received SIGTERM. Shutting down gracefully...");
       server.close(() => {
-        console.log("Server closed. Exiting process.");
+        log.info("Server closed. Exiting process.");
         process.exit(0);
       });
     });
   } catch (error) {
-    console.error("Error starting server:", error);
+    log.error({ err: error }, "Error starting server");
     process.exit(1);
   }
 }
