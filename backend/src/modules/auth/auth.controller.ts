@@ -4,7 +4,7 @@ import { asyncHandler } from '../../core/utils/asyncHandler.js';
 import { sendSuccess } from '../../core/utils/apiResponse.js';
 import { HttpStatus } from '../../core/constants/http.js';
 import type { AuthenticatedRequest } from '../../core/middleware/authenticate.js';
-import type { RegisterInput, LoginInput, RefreshInput } from './auth.schema.js';
+import type { RegisterInput, LoginInput, RefreshInput, GoogleInput } from './auth.schema.js';
 
 export const register: RequestHandler = asyncHandler(async (req, res) => {
   const data = await authService.register(req.body as RegisterInput);
@@ -26,6 +26,11 @@ export const refresh: RequestHandler = asyncHandler(async (req, res) => {
 export const logout: RequestHandler = asyncHandler(async (req, res) => {
   await authService.logout((req.body as RefreshInput).refreshToken);
   sendSuccess(res, 'Logged out successfully', null);
+});
+
+export const googleLogin: RequestHandler = asyncHandler(async (req, res) => {
+  const data = await authService.googleLogin((req.body as GoogleInput).idToken);
+  sendSuccess(res, 'Logged in with Google successfully', data);
 });
 
 export const me: RequestHandler = asyncHandler(async (req, res) => {

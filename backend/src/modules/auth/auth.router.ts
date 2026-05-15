@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import { register, login, refresh, logout, me } from './auth.controller.js';
-import { registerSchema, loginSchema, refreshSchema } from './auth.schema.js';
+import { register, login, refresh, logout, googleLogin, me } from './auth.controller.js';
+import { registerSchema, loginSchema, refreshSchema, googleSchema } from './auth.schema.js';
 import { authenticate } from '../../core/middleware/authenticate.js';
 import { validate } from '../../core/middleware/validate.js';
 
@@ -17,6 +17,9 @@ router.post('/refresh', validate('body', refreshSchema), refresh);
 
 // POST /api/auth/logout
 router.post('/logout', validate('body', refreshSchema), logout);
+
+// POST /api/auth/social/google
+router.post('/social/google', validate('body', googleSchema), googleLogin);
 
 // GET /api/auth/me
 router.get('/me', authenticate, me);

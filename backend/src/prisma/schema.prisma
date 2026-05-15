@@ -16,6 +16,11 @@ enum Role {
   ADMIN
 }
 
+enum AuthProvider {
+  LOCAL
+  GOOGLE
+}
+
 // ─────────────────────────────────────────────
 // Auth
 // ─────────────────────────────────────────────
@@ -24,7 +29,7 @@ model User {
   id              String    @id @default(uuid())
   email           String    @unique
   username        String    @unique
-  passwordHash    String
+  passwordHash    String?   // null for social-only accounts
   displayName     String
   avatarUrl       String?
   emailVerifiedAt DateTime?
@@ -32,11 +37,27 @@ model User {
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 
+  providers     UserProvider[]
   refreshTokens RefreshToken[]
 
   @@index([email])
   @@index([username])
   @@map("users")
+}
+
+model UserProvider {
+  id         String       @id @default(uuid())
+  userId     String
+  provider   AuthProvider
+  providerId String       // Google sub, GitHub id, etc. — their ID in that provider's system
+  createdAt  DateTime     @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerId]) // one account per provider identity
+  @@unique([userId, provider])     // one provider type per user
+  @@index([userId])
+  @@map("user_providers")
 }
 
 model RefreshToken {

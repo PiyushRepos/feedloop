@@ -9,6 +9,9 @@ const envSchema = z.object({
   // Database
   DATABASE_URL: z.string().url(),
 
+  // Google OAuth
+  GOOGLE_CLIENT_ID: z.string().min(1),
+
   // JWT
   JWT_ACCESS_SECRET: z.string().min(32),
   JWT_REFRESH_SECRET: z.string().min(32),
