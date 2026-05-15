@@ -1,20 +1,10 @@
 import { createHash, randomBytes } from 'crypto';
 import { SignJWT, jwtVerify } from 'jose';
 
-// ─── Opaque token helpers (refresh tokens, one-time tokens, etc.) ─────────────
-
-/**
- * SHA-256 hash of a raw token string.
- * Deterministic — safe to use as a database lookup key.
- */
 export function hashToken(raw: string): string {
   return createHash('sha256').update(raw).digest('hex');
 }
 
-/**
- * Generates a cryptographically random opaque token and its SHA-256 hash.
- * Store only the hash; return the raw token to the client.
- */
 export function generateToken(): { raw: string; hash: string } {
   const raw = randomBytes(40).toString('hex');
   return { raw, hash: hashToken(raw) };
