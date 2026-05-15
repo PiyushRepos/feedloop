@@ -1,6 +1,7 @@
 import express, { type Application } from 'express';
 import cors from 'cors';
 import { errorHandler } from './core/middleware/errorHandler.js';
+import { globalRateLimit } from './core/middleware/rateLimit.js';
 import authRouter from './modules/auth/auth.router.js';
 import { sendSuccess } from './core/utils/apiResponse.js';
 
@@ -10,6 +11,7 @@ function createApp(): Application {
   // ─── Global middleware ────────────────────────────────────────────────────
   app.use(cors());
   app.use(express.json());
+  app.use(globalRateLimit);
 
   // ─── Routes ───────────────────────────────────────────────────────────────
   app.get('/', (_req, res) => {
@@ -18,7 +20,7 @@ function createApp(): Application {
 
   app.use('/api/auth', authRouter);
 
-  // ─── Global error handler ─────────────────────────────────
+  // ─── Global error handler (must be last) ─────────────────────────────────
   app.use(errorHandler);
 
   return app;
