@@ -1,13 +1,10 @@
-import "./App.css";
-import { Button } from "./components/ui/button";
+import { Navbar } from "./components/layout/header";
 
 function App() {
   return (
-    <>
-      <main className="flex min-h-screen flex-col items-center justify-between p-24">
-        <Button variant="default">Button</Button>
-      </main>
-    </>
+    <main>
+      <Navbar />
+    </main>
   );
 }
 
