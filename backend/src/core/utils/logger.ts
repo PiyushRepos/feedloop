@@ -1,28 +1,28 @@
-import pino, { type Logger, type LoggerOptions } from "pino";
-import env from "../config/env.js";
+import pino, { type Logger, type LoggerOptions } from 'pino';
+import env from '../config/env.js';
 
-const isDev = env.NODE_ENV === "development";
+const isDev = env.NODE_ENV === 'development';
 
 /**
  * Sensitive fields that will be redacted from all log output.
  * Add any field names that could carry PII or secrets.
  */
 const REDACT_PATHS = [
-  "req.headers.authorization",
-  "req.headers.cookie",
-  "*.password",
-  "*.token",
-  "*.secret",
-  "*.accessToken",
-  "*.refreshToken",
-  "*.apiKey",
+  'req.headers.authorization',
+  'req.headers.cookie',
+  '*.password',
+  '*.token',
+  '*.secret',
+  '*.accessToken',
+  '*.refreshToken',
+  '*.apiKey',
 ];
 
 const baseOptions: LoggerOptions = {
-  level: isDev ? "debug" : "info",
+  level: isDev ? 'debug' : 'info',
   redact: {
     paths: REDACT_PATHS,
-    censor: "[REDACTED]",
+    censor: '[REDACTED]',
   },
   timestamp: pino.stdTimeFunctions.isoTime,
   formatters: {
@@ -37,12 +37,12 @@ function buildLogger(): Logger {
     return pino({
       ...baseOptions,
       transport: {
-        target: "pino-pretty",
+        target: 'pino-pretty',
         options: {
           colorize: true,
-          translateTime: "SYS:HH:MM:ss",
-          ignore: "pid,hostname",
-          messageFormat: "[{context}] {msg}",
+          translateTime: 'SYS:HH:MM:ss',
+          ignore: 'pid,hostname',
+          messageFormat: '[{context}] {msg}',
         },
       },
     });
