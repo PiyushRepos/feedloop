@@ -21,6 +21,13 @@ enum AuthProvider {
   GOOGLE
 }
 
+enum PollStatus {
+  DRAFT      // created, not yet accepting responses
+  ACTIVE     // accepting responses
+  CLOSED     // no longer accepting, creator reviewing
+  PUBLISHED  // results visible publicly on the poll link
+}
+
 // ─────────────────────────────────────────────
 // Auth
 // ─────────────────────────────────────────────
@@ -39,6 +46,8 @@ model User {
 
   providers     UserProvider[]
   refreshTokens RefreshToken[]
+  polls         Poll[]
+  responses     Response[]
 
   @@index([email])
   @@index([username])
@@ -49,13 +58,13 @@ model UserProvider {
   id         String       @id @default(uuid())
   userId     String
   provider   AuthProvider
-  providerId String       // Google sub, GitHub id, etc. — their ID in that provider's system
+  providerId String       // Google sub, GitHub id, etc.
   createdAt  DateTime     @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([provider, providerId]) // one account per provider identity
-  @@unique([userId, provider])     // one provider type per user
+  @@unique([provider, providerId])
+  @@unique([userId, provider])
   @@index([userId])
   @@map("user_providers")
 }
@@ -72,4 +81,117 @@ model RefreshToken {
 
   @@index([userId])
   @@map("refresh_tokens")
+}
+
+// ─────────────────────────────────────────────
+// Poll
+// ─────────────────────────────────────────────
+
+model Poll {
+  id           String     @id @default(uuid())
+  slug         String     @unique   // short URL-safe ID for share link e.g. /p/abc123
+  title        String
+  description  String?
+  creatorId    String
+  isAnonymous   Boolean    @default(false) // controls storage — respondent identity not stored
+  requiresAuth  Boolean    @default(false) // controls access  — must be logged in to respond
+  status        PollStatus @default(DRAFT)
+  expiresAt     DateTime?              // null = never expires
+  maxResponses  Int?                   // null = unlimited; poll auto-closes when count reaches this
+  publishedAt   DateTime?              // set when creator publishes results
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  creator   User       @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  questions Question[]
+  responses Response[]
+
+  @@index([creatorId])
+  @@index([slug])
+  @@index([status])
+  @@map("polls")
+}
+
+model Question {
+  id         String   @id @default(uuid())
+  pollId     String
+  text       String
+  isRequired Boolean  @default(true)
+  order      Int                      // determines render order on the form
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  poll            Poll             @relation(fields: [pollId], references: [id], onDelete: Cascade)
+  options         QuestionOption[]
+  responseAnswers ResponseAnswer[]
+
+  @@index([pollId])
+  @@map("questions")
+}
+
+model QuestionOption {
+  id         String   @id @default(uuid())
+  questionId String
+  text       String
+  order      Int
+  createdAt  DateTime @default(now())
+
+  question        Question         @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  responseAnswers ResponseAnswer[]
+
+  @@index([questionId])
+  @@map("question_options")
+}
+
+// ─────────────────────────────────────────────
+// Response
+// ─────────────────────────────────────────────
+
+model Response {
+  id           String   @id @default(uuid())
+  pollId       String
+  respondentId String?  // null when poll.isAnonymous = true
+  submittedAt  DateTime @default(now())
+
+  // Network
+  ipAddress    String?  // used for anonymous deduplication + GeoIP
+
+  // Device (parsed from User-Agent at write time)
+  userAgent    String?
+  browser      String?  // e.g. "Chrome", "Safari"
+  os           String?  // e.g. "Windows", "iOS", "Android"
+  device       String?  // "mobile" | "tablet" | "desktop"
+
+  // Geo (resolved from IP at write time)
+  country      String?  // e.g. "India"
+  region       String?  // state / province e.g. "Maharashtra"
+  city         String?  // e.g. "Mumbai"
+
+  poll        Poll             @relation(fields: [pollId], references: [id], onDelete: Cascade)
+  respondent  User?            @relation(fields: [respondentId], references: [id], onDelete: SetNull)
+  answers     ResponseAnswer[]
+
+  // One authenticated response per poll per user
+  @@unique([pollId, respondentId])
+  @@index([pollId])
+  @@index([respondentId])
+  @@map("responses")
+}
+
+model ResponseAnswer {
+  id               String @id @default(uuid())
+  responseId       String
+  questionId       String
+  selectedOptionId String
+
+  response       Response       @relation(fields: [responseId], references: [id], onDelete: Cascade)
+  question       Question       @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  selectedOption QuestionOption @relation(fields: [selectedOptionId], references: [id], onDelete: Cascade)
+
+  // One answer per question per response
+  @@unique([responseId, questionId])
+  @@index([responseId])
+  @@index([questionId])
+  @@index([selectedOptionId])
+  @@map("response_answers")
 }
