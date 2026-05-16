@@ -7,6 +7,7 @@ import Register from "@/pages/Register";
 import Dashboard from "@/pages/Dashboard";
 import CreatePoll from "@/pages/CreatePoll";
 import PollView from "@/pages/PollView";
+import PollResults from "@/pages/PollResults";
 import NotFound from "@/pages/NotFound";
 
 export const router = createBrowserRouter([
@@ -18,6 +19,7 @@ export const router = createBrowserRouter([
       { path: "/dashboard", element: <Dashboard /> },
       { path: "/poll/create", element: <CreatePoll /> },
       { path: "/poll/:slug", element: <PollView /> },
+      { path: "/poll/:slug/results", element: <PollResults /> },
     ],
   },
   { path: "/login", element: <Login /> },
