@@ -2,8 +2,6 @@
 
 Real-time polling platform — create multi-question polls, share a link, and watch responses arrive live.
 
-**Live:** [feedloop.piyus.me](https://feedloop.piyus.me)
-
 ## Table of Contents
 
 - [Features](#features)
@@ -102,24 +100,24 @@ Open [http://localhost:5173](http://localhost:5173).
 
 ### Backend — `backend/.env`
 
-| Variable | Description | Required |
-|---|---|---|
-| `NODE_ENV` | `development` or `production` | Yes |
-| `PORT` | Port the API server listens on | Yes |
-| `CLIENT_URL` | Frontend origin for CORS (e.g. `http://localhost:5173`) | Yes |
-| `DATABASE_URL` | PostgreSQL connection string | Yes |
-| `GOOGLE_CLIENT_ID` | Google OAuth client ID (same value used in frontend) | Yes |
-| `JWT_ACCESS_SECRET` | Secret for signing access tokens — minimum 32 characters | Yes |
-| `JWT_REFRESH_SECRET` | Secret for signing refresh tokens — minimum 32 characters | Yes |
-| `JWT_ACCESS_EXPIRES_IN` | Access token TTL (default: `15m`) | No |
-| `JWT_REFRESH_EXPIRES_IN_DAYS` | Refresh token TTL in days (default: `7`) | No |
+| Variable                      | Description                                               | Required |
+| ----------------------------- | --------------------------------------------------------- | -------- |
+| `NODE_ENV`                    | `development` or `production`                             | Yes      |
+| `PORT`                        | Port the API server listens on                            | Yes      |
+| `CLIENT_URL`                  | Frontend origin for CORS (e.g. `http://localhost:5173`)   | Yes      |
+| `DATABASE_URL`                | PostgreSQL connection string                              | Yes      |
+| `GOOGLE_CLIENT_ID`            | Google OAuth client ID (same value used in frontend)      | Yes      |
+| `JWT_ACCESS_SECRET`           | Secret for signing access tokens — minimum 32 characters  | Yes      |
+| `JWT_REFRESH_SECRET`          | Secret for signing refresh tokens — minimum 32 characters | Yes      |
+| `JWT_ACCESS_EXPIRES_IN`       | Access token TTL (default: `15m`)                         | No       |
+| `JWT_REFRESH_EXPIRES_IN_DAYS` | Refresh token TTL in days (default: `7`)                  | No       |
 
 ### Frontend — `frontend/.env.local`
 
-| Variable | Description | Required |
-|---|---|---|
-| `VITE_API_URL` | Backend base URL (e.g. `http://localhost:3000/api`) | Yes |
-| `VITE_GOOGLE_CLIENT_ID` | Google OAuth client ID — must match backend | Yes |
+| Variable                | Description                                         | Required |
+| ----------------------- | --------------------------------------------------- | -------- |
+| `VITE_API_URL`          | Backend base URL (e.g. `http://localhost:3000/api`) | Yes      |
+| `VITE_GOOGLE_CLIENT_ID` | Google OAuth client ID — must match backend         | Yes      |
 
 ---
 
@@ -214,11 +212,11 @@ DRAFT ──publish──▶ ACTIVE ──close──▶ CLOSED ──publish re
 
 **StatsVisibility tiers:**
 
-| Tier | What respondents see after voting |
-|---|---|
-| `VOTES_ONLY` | Vote counts + percentages |
-| `BASIC` | + country, device type |
-| `FULL` | + browser, OS, region, city |
+| Tier         | What respondents see after voting |
+| ------------ | --------------------------------- |
+| `VOTES_ONLY` | Vote counts + percentages         |
+| `BASIC`      | + country, device type            |
+| `FULL`       | + browser, OS, region, city       |
 
 ---
 
@@ -232,37 +230,37 @@ All endpoints are prefixed with `/api`. All responses follow the shape:
 
 ### Auth — `/api/auth`
 
-| Method | Path | Auth | Description |
-|---|---|---|---|
-| `POST` | `/register` | — | Create account with email + password |
-| `POST` | `/login` | — | Sign in, receive access + refresh tokens |
-| `POST` | `/google` | — | Exchange Google id_token for app tokens |
-| `POST` | `/refresh` | — | Rotate refresh token, get new access token |
-| `POST` | `/logout` | Bearer | Revoke refresh token |
-| `GET` | `/me` | Bearer | Return authenticated user profile |
+| Method | Path        | Auth   | Description                                |
+| ------ | ----------- | ------ | ------------------------------------------ |
+| `POST` | `/register` | —      | Create account with email + password       |
+| `POST` | `/login`    | —      | Sign in, receive access + refresh tokens   |
+| `POST` | `/google`   | —      | Exchange Google id_token for app tokens    |
+| `POST` | `/refresh`  | —      | Rotate refresh token, get new access token |
+| `POST` | `/logout`   | Bearer | Revoke refresh token                       |
+| `GET`  | `/me`       | Bearer | Return authenticated user profile          |
 
 ### Polls — `/api/polls`
 
-| Method | Path | Auth | Description |
-|---|---|---|---|
-| `POST` | `/` | Bearer | Create a poll (returns DRAFT) |
-| `GET` | `/mine` | Bearer | List authenticated user's polls |
-| `GET` | `/:slug` | — | Get poll by slug (public) |
-| `PATCH` | `/:id` | Bearer | Update poll metadata |
-| `PATCH` | `/:id/status` | Bearer | Transition status (`ACTIVE`, `CLOSED`, `PUBLISHED`) |
-| `DELETE` | `/:id` | Bearer | Delete poll and all its data |
-| `POST` | `/:slug/responses` | — | Submit a response |
-| `GET` | `/:slug/results` | — | Get vote breakdown (respects statsVisibility) |
-| `GET` | `/:id/analytics` | Bearer | Get full analytics including timeline |
+| Method   | Path               | Auth   | Description                                         |
+| -------- | ------------------ | ------ | --------------------------------------------------- |
+| `POST`   | `/`                | Bearer | Create a poll (returns DRAFT)                       |
+| `GET`    | `/mine`            | Bearer | List authenticated user's polls                     |
+| `GET`    | `/:slug`           | —      | Get poll by slug (public)                           |
+| `PATCH`  | `/:id`             | Bearer | Update poll metadata                                |
+| `PATCH`  | `/:id/status`      | Bearer | Transition status (`ACTIVE`, `CLOSED`, `PUBLISHED`) |
+| `DELETE` | `/:id`             | Bearer | Delete poll and all its data                        |
+| `POST`   | `/:slug/responses` | —      | Submit a response                                   |
+| `GET`    | `/:slug/results`   | —      | Get vote breakdown (respects statsVisibility)       |
+| `GET`    | `/:id/analytics`   | Bearer | Get full analytics including timeline               |
 
 ### WebSocket events (Socket.io)
 
-| Event | Direction | Payload | Description |
-|---|---|---|---|
-| `join:poll` | Client → Server | `{ slug }` | Join a poll's Socket.io room |
-| `leave:poll` | Client → Server | `{ slug }` | Leave the room |
+| Event          | Direction       | Payload                    | Description                    |
+| -------------- | --------------- | -------------------------- | ------------------------------ |
+| `join:poll`    | Client → Server | `{ slug }`                 | Join a poll's Socket.io room   |
+| `leave:poll`   | Client → Server | `{ slug }`                 | Leave the room                 |
 | `response:new` | Server → Client | `{ slug, totalResponses }` | Broadcast on each new response |
-| `poll:status` | Server → Client | `{ slug, status }` | Broadcast on status change |
+| `poll:status`  | Server → Client | `{ slug, status }`         | Broadcast on status change     |
 
 ---
 
@@ -270,33 +268,33 @@ All endpoints are prefixed with `/api`. All responses follow the shape:
 
 ### Backend
 
-| | |
-|---|---|
-| Runtime | Node.js 20 + TypeScript |
-| Framework | Express 5 |
-| Database | PostgreSQL 15 via Prisma ORM |
-| Auth | JWT (jose) + bcryptjs + Google Auth Library |
-| Real-time | Socket.io 4 |
-| Validation | Zod 4 |
-| Geo / UA | geoip-lite + ua-parser-js |
-| Scheduling | node-cron |
-| Logging | Pino + pino-pretty |
+|            |                                             |
+| ---------- | ------------------------------------------- |
+| Runtime    | Node.js 20 + TypeScript                     |
+| Framework  | Express 5                                   |
+| Database   | PostgreSQL 15 via Prisma ORM                |
+| Auth       | JWT (jose) + bcryptjs + Google Auth Library |
+| Real-time  | Socket.io 4                                 |
+| Validation | Zod 4                                       |
+| Geo / UA   | geoip-lite + ua-parser-js                   |
+| Scheduling | node-cron                                   |
+| Logging    | Pino + pino-pretty                          |
 
 ### Frontend
 
-| | |
-|---|---|
-| Framework | React 19 + TypeScript + Vite |
-| Routing | React Router v7 |
-| Server state | TanStack Query v5 |
-| HTTP client | Axios (with JWT refresh-token queue) |
+|               |                                               |
+| ------------- | --------------------------------------------- |
+| Framework     | React 19 + TypeScript + Vite                  |
+| Routing       | React Router v7                               |
+| Server state  | TanStack Query v5                             |
+| HTTP client   | Axios (with JWT refresh-token queue)          |
 | UI components | Base UI (headless) + class-variance-authority |
-| Styling | Tailwind CSS v4 |
-| Animation | Framer Motion (motion/react) v12 |
-| Auth | @react-oauth/google (Google One Tap / FedCM) |
-| Validation | Zod 4 |
-| Icons | Lucide React |
-| Fonts | Geist (variable) via @fontsource-variable |
+| Styling       | Tailwind CSS v4                               |
+| Animation     | Framer Motion (motion/react) v12              |
+| Auth          | @react-oauth/google (Google One Tap / FedCM)  |
+| Validation    | Zod 4                                         |
+| Icons         | Lucide React                                  |
+| Fonts         | Geist (variable) via @fontsource-variable     |
 
 ---
 
